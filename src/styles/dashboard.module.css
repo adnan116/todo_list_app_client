@@ -1,0 +1,47 @@
+/* src/styles/dashboard.module.css */
+
+.dashboardContainer {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.contentWrapper {
+  display: flex;
+  flex: 1;
+  background-color: #f5f5f5; /* Light background for contrast */
+}
+
+.content {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto; /* Enable scrolling if content overflows */
+  background-color: #ffffff; /* White background for content area */
+  border-left: 1px solid #e0e0e0; /* Light border to separate from sidebar */
+}
+
+.dashboardTitle {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 20px;
+  color: #333; /* Dark color for the title */
+}
+
+.mainContent {
+  padding: 20px;
+  background-color: #fafafa; /* Slightly darker background for main content area */
+  border-radius: 8px; /* Rounded corners */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+}
+
+/* Optional media query for responsiveness */
+@media (max-width: 768px) {
+  .contentWrapper {
+    flex-direction: column; /* Stack sidebar and content on small screens */
+  }
+
+  .content {
+    border-left: none; /* Remove left border on small screens */
+    border-top: 1px solid #e0e0e0; /* Add top border instead */
+  }
+}
