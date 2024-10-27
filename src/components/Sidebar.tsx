@@ -38,7 +38,7 @@ const Sidebar: React.FC<SidebarProps> = ({ permittedFeatures }) => {
   return (
     <div
       className="w-80 h-screen bg-gray-200 p-4 flex flex-col shadow-lg"
-      style={{ width: "25%" }}
+      style={{ width: "15%" }}
     >
       <div className="mt-4 flex flex-col gap-2">
         {menuItems.map(({ category, features }) => (

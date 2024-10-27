@@ -1,0 +1,23 @@
+.root {
+  padding: 20px;
+  margin-top: 20px;
+  background-color: #f5f5f5;
+  border-radius: 8px;
+}
+
+.searchContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.searchInput {
+  flex: 1;
+  margin-right: 10px;
+}
+
+.searchButton {
+  background-color: #1976d2;
+  color: white;
+}

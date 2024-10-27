@@ -1,12 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import Sidebar from "@components/Sidebar";
-import Navbar from "@components/Navbar";
+import Layout from "@components/Layout";
 import styles from "@styles/dashboard.module.css";
 
 const Dashboard: React.FC = () => {
   const router = useRouter();
-  const [permittedFeatures, setPermittedFeatures] = useState<string[]>([]);
   const [userInfo, setUserInfo] = useState<{
     firstName: string;
     lastName: string;
@@ -22,11 +20,6 @@ const Dashboard: React.FC = () => {
       router.push("/");
     } else {
       if (typeof window !== "undefined") {
-        const permittedFeatures = JSON.parse(
-          window.localStorage.getItem("permittedFeatures") || "[]"
-        );
-        setPermittedFeatures(permittedFeatures || []);
-
         const userdata = JSON.parse(
           window.localStorage.getItem("userInfo") || "{}"
         );
@@ -36,18 +29,13 @@ const Dashboard: React.FC = () => {
   }, [router]);
 
   return (
-    <div className={styles.dashboardContainer}>
-      <Navbar />
-      <div className={styles.contentWrapper}>
-        <Sidebar permittedFeatures={permittedFeatures} />
-        <div className={styles.content}>
-          <h1>{`Welcome, ${
-            userInfo && userInfo?.firstName ? userInfo.firstName : ""
-          } ${userInfo && userInfo?.lastName ? userInfo.lastName : ""}`}</h1>
-          {/* Your main dashboard content goes here */}
-        </div>
+    <Layout>
+      <div className={styles.content}>
+        <h1>{`Welcome, ${
+          userInfo && userInfo?.firstName ? userInfo.firstName : ""
+        } ${userInfo && userInfo?.lastName ? userInfo.lastName : ""}`}</h1>
       </div>
-    </div>
+    </Layout>
   );
 };
 
