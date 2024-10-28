@@ -12,47 +12,39 @@ import {
   IconButton,
   Paper,
 } from "@mui/material";
+import axios from "axios";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-import styles from "../styles/userlist.module.css";
 import ConfirmationModal from "./ConfirmationModal";
-import UpdateUserModal from "./UpdateUserModal";
 import ToastNotification from "@components/ToastNotification";
-import axios from "axios";
-import { useRouter } from "next/router";
+import UpdateTaskCategoryModal from "./UpdateTaskCategoryModal";
+import styles from "@styles/userlist.module.css";
 import { backendBaseUrl } from "@configs/config";
 
-interface User {
+interface TaskCategory {
   id: string;
-  firstName: string;
-  lastName: string;
-  dob: string;
-  phoneNumber: string;
-  email: string;
-  gender: string;
-  religion: string;
-  roleId:
-    | {
-        id: string;
-        roleName: string;
-      }
-    | string;
-  username?: string;
-  isActive?: boolean;
+  categoryName: string;
+  description: string;
+  createdBy: string;
+  createdAt: string;
 }
 
-const UserList: React.FC = () => {
-  const [users, setUsers] = useState<User[]>([]);
+const TaskCategoryList: React.FC = () => {
+  const [categories, setCategories] = useState<TaskCategory[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [search, setSearch] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [confirmDelete, setConfirmDelete] = useState(false);
-  const [userIdToDelete, setUserIdToDelete] = useState<string | null>(null);
-  const [totalUsers, setTotalUsers] = useState<number>(0);
+  const [categoryIdToDelete, setCategoryIdToDelete] = useState<string | null>(
+    null
+  );
+  const [totalCategories, setTotalCategories] = useState<number>(0);
   const [updateModalOpen, setUpdateModalOpen] = useState(false);
-  const [userToUpdate, setUserToUpdate] = useState<User | null>(null);
+  const [categoryToUpdate, setCategoryToUpdate] = useState<TaskCategory | null>(
+    null
+  );
 
   // Toast state
   const [toastOpen, setToastOpen] = useState(false);
@@ -61,13 +53,11 @@ const UserList: React.FC = () => {
     "success" | "error" | "warning"
   >("success");
 
-  const router = useRouter();
-
-  const fetchUsers = async () => {
+  const fetchCategories = async () => {
     try {
       const token = window.localStorage.getItem("token");
       const response = await axios.get(
-        `${backendBaseUrl}/user/list?page=${currentPage}&limit=${rowsPerPage}${
+        `${backendBaseUrl}/task-category/list?page=${currentPage}&limit=${rowsPerPage}${
           searchQuery ? `&search=${searchQuery}` : ""
         }`,
         {
@@ -78,23 +68,17 @@ const UserList: React.FC = () => {
       );
 
       if (response.status === 200) {
-        setUsers(response.data.data.users);
+        setCategories(response.data.data.categories);
         setTotalPages(response.data.data.totalPages);
-        setTotalUsers(response.data.data.totalUsers);
+        setTotalCategories(response.data.data.totalCategories);
       }
     } catch (error) {
-      // Check if the error is an AxiosError and if the response status is 401
-      if (axios.isAxiosError(error) && error.response?.status === 401) {
-        console.error("Unauthorized access - Redirecting to login.");
-        router.push("/");
-      } else {
-        console.error("Error fetching users:", error);
-      }
+      console.error("Error fetching task categories:", error);
     }
   };
 
   useEffect(() => {
-    fetchUsers();
+    fetchCategories();
   }, [currentPage, rowsPerPage, searchQuery]);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -120,61 +104,58 @@ const UserList: React.FC = () => {
     setCurrentPage(1);
   };
 
-  const handleEditUser = (user: User) => {
-    setUserToUpdate(user);
+  const handleEditCategory = (category: TaskCategory) => {
+    setCategoryToUpdate(category);
     setUpdateModalOpen(true);
   };
 
-  const handleDeleteUser = async () => {
-    if (userIdToDelete) {
+  const handleDeleteCategory = async () => {
+    if (categoryIdToDelete) {
       try {
         const token = window.localStorage.getItem("token");
-        await axios.delete(`${backendBaseUrl}/user/delete/${userIdToDelete}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        fetchUsers();
+        await axios.delete(
+          `${backendBaseUrl}/task-category/delete/${categoryIdToDelete}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        fetchCategories();
         setConfirmDelete(false);
-        setUserIdToDelete(null);
+        setCategoryIdToDelete(null);
         // Show success toast
-        setToastMessage("User deleted successfully!");
+        setToastMessage("Task category deleted successfully!");
         setToastSeverity("success");
         setToastOpen(true);
       } catch (error) {
-        console.error("Error deleting user:", error);
+        console.error("Error deleting task category:", error);
         // Show error toast
-        setToastMessage("Error deleting user.");
+        setToastMessage("Error deleting task category.");
         setToastSeverity("error");
         setToastOpen(true);
       }
     }
   };
 
-  const openDeleteConfirmation = (userId: string) => {
-    setUserIdToDelete(userId);
+  const openDeleteConfirmation = (categoryId: string) => {
+    setCategoryIdToDelete(categoryId);
     setConfirmDelete(true);
   };
 
   const closeDeleteConfirmation = () => {
     setConfirmDelete(false);
-    setUserIdToDelete(null);
+    setCategoryIdToDelete(null);
   };
 
-  const handleUpdateUser = async (updatedUser: User) => {
+  const handleUpdateCategory = async (updatedCategory: TaskCategory) => {
     try {
       const token = window.localStorage.getItem("token");
       await axios.put(
-        `${backendBaseUrl}/user/update/${updatedUser.id}`,
+        `${backendBaseUrl}/task-category/update/${updatedCategory.id}`,
         {
-          firstName: updatedUser.firstName,
-          lastName: updatedUser.lastName,
-          dob: updatedUser.dob,
-          phoneNumber: updatedUser.phoneNumber,
-          email: updatedUser.email,
-          gender: updatedUser.gender,
-          religion: updatedUser.religion,
-          roleId: updatedUser.roleId,
+          categoryName: updatedCategory.categoryName,
+          description: updatedCategory.description,
         },
         {
           headers: {
@@ -183,16 +164,16 @@ const UserList: React.FC = () => {
         }
       );
       setUpdateModalOpen(false);
-      setUserToUpdate(null);
-      fetchUsers();
+      setCategoryToUpdate(null);
+      fetchCategories();
 
-      setToastMessage("User updated successfully!");
+      setToastMessage("Task category updated successfully!");
       setToastSeverity("success");
       setToastOpen(true);
     } catch (error) {
-      console.error("Error updating user:", error);
+      console.error("Error updating task category:", error);
 
-      setToastMessage("Error updating user.");
+      setToastMessage("Error updating task category.");
       setToastSeverity("error");
       setToastOpen(true);
     }
@@ -206,7 +187,7 @@ const UserList: React.FC = () => {
     <Paper className={styles.root}>
       <div className={styles.searchContainer}>
         <TextField
-          label="Search Users"
+          label="Search Task Categories"
           variant="outlined"
           value={search}
           onChange={handleSearchChange}
@@ -224,43 +205,30 @@ const UserList: React.FC = () => {
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>First Name</TableCell>
-              <TableCell>Last Name</TableCell>
-              <TableCell>Email</TableCell>
-              <TableCell>Phone Number</TableCell>
-              <TableCell>Gender</TableCell>
-              <TableCell>Role</TableCell>
+              <TableCell>Category Name</TableCell>
+              <TableCell>Description</TableCell>
+              <TableCell>Created At</TableCell>
               <TableCell>Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {users.map((user) => (
-              <TableRow key={user.id}>
-                <TableCell>{user.firstName}</TableCell>
-                <TableCell>{user.lastName}</TableCell>
-                <TableCell>{user.email}</TableCell>
-                <TableCell>{user.phoneNumber}</TableCell>
-                <TableCell>{user.gender}</TableCell>
+            {categories.map((category) => (
+              <TableRow key={category.id}>
+                <TableCell>{category.categoryName}</TableCell>
+                <TableCell>{category.description}</TableCell>
                 <TableCell>
-                  {
-                    (
-                      user.roleId as {
-                        id: string;
-                        roleName: string;
-                      }
-                    ).roleName
-                  }
+                  {new Date(category.createdAt).toLocaleDateString()}
                 </TableCell>
                 <TableCell>
                   <IconButton
                     color="primary"
-                    onClick={() => handleEditUser(user)}
+                    onClick={() => handleEditCategory(category)}
                   >
                     <EditIcon />
                   </IconButton>
                   <IconButton
                     color="secondary"
-                    onClick={() => openDeleteConfirmation(user.id)}
+                    onClick={() => openDeleteConfirmation(category.id)}
                   >
                     <DeleteIcon />
                   </IconButton>
@@ -272,7 +240,7 @@ const UserList: React.FC = () => {
       </TableContainer>
       <TablePagination
         component="div"
-        count={totalUsers}
+        count={totalCategories}
         page={currentPage - 1}
         onPageChange={handlePageChange}
         rowsPerPage={rowsPerPage}
@@ -282,14 +250,14 @@ const UserList: React.FC = () => {
       <ConfirmationModal
         open={confirmDelete}
         onClose={closeDeleteConfirmation}
-        onConfirm={handleDeleteUser}
-        message="Are you sure you want to delete this user?"
+        onConfirm={handleDeleteCategory}
+        message="Are you sure you want to delete this task category?"
       />
-      <UpdateUserModal
+      <UpdateTaskCategoryModal
         open={updateModalOpen}
         onClose={() => setUpdateModalOpen(false)}
-        user={userToUpdate as User}
-        onUpdate={handleUpdateUser}
+        taskCategory={categoryToUpdate}
+        onUpdate={handleUpdateCategory}
       />
       <ToastNotification
         open={toastOpen}
@@ -301,4 +269,4 @@ const UserList: React.FC = () => {
   );
 };
 
-export default UserList;
+export default TaskCategoryList;

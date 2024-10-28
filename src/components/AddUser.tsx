@@ -16,6 +16,7 @@ import { useRouter } from "next/router";
 import axios from "axios";
 import ToastNotification from "@components/ToastNotification";
 import { genderOptions, religionOptions } from "@utils/constant";
+import { backendBaseUrl } from "@configs/config";
 
 const AddUser: React.FC = () => {
   const [form, setForm] = useState({
@@ -25,7 +26,7 @@ const AddUser: React.FC = () => {
     phoneNumber: "",
     dob: "",
     gender: "",
-    religion: "None",
+    religion: "",
     password: "",
     roleId: "",
   });
@@ -40,30 +41,30 @@ const AddUser: React.FC = () => {
   const [fieldErrors, setFieldErrors] = useState<{ [key: string]: string }>({});
   const router = useRouter();
 
-  useEffect(() => {
-    const fetchRoles = async () => {
-      try {
-        const token = window.localStorage.getItem("token");
-        const response = await axios.get(
-          "http://localhost:5000/user/all-roles",
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+  const fetchRoles = async () => {
+    try {
+      const token = window.localStorage.getItem("token");
+      const response = await axios.get(`${backendBaseUrl}/user/all-roles`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-        if (response.status === 200) {
-          setRoles(response.data.data);
-        }
-      } catch (error) {
-        console.error("Failed to fetch roles:", error);
-        setToastMessage("Failed to fetch roles. Please try again.");
-        setToastSeverity("error");
-        setToastOpen(true);
+      if (response.status === 200) {
+        setRoles(response.data.data);
       }
-    };
+    } catch (error) {
+      // Check if the error is an AxiosError and if the response status is 401
+      if (axios.isAxiosError(error) && error.response?.status === 401) {
+        console.error("Unauthorized access - Redirecting to login.");
+        router.push("/");
+      } else {
+        console.error("Error fetching users:", error);
+      }
+    }
+  };
 
+  useEffect(() => {
     fetchRoles();
   }, []);
 
@@ -80,19 +81,15 @@ const AddUser: React.FC = () => {
 
   const handleAddUser = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setFieldErrors({}); // Clear previous errors
+    setFieldErrors({});
 
     try {
       const token = window.localStorage.getItem("token");
-      const response = await axios.post(
-        "http://localhost:5000/user/create",
-        form,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await axios.post(`${backendBaseUrl}/user/create`, form, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
       if (response.status === 201) {
         setToastMessage("User added successfully!");
@@ -144,7 +141,7 @@ const AddUser: React.FC = () => {
           Add New User
         </Typography>
         <Grid container spacing={2}>
-          <Grid item xs={6}>
+          <Grid item xs={12}>
             <TextField
               name="firstName"
               label="First Name"
@@ -157,7 +154,7 @@ const AddUser: React.FC = () => {
               helperText={fieldErrors.firstName}
             />
           </Grid>
-          <Grid item xs={6}>
+          <Grid item xs={12}>
             <TextField
               name="lastName"
               label="Last Name"
@@ -181,6 +178,7 @@ const AddUser: React.FC = () => {
               required
               error={!!fieldErrors.email}
               helperText={fieldErrors.email}
+              InputLabelProps={{ shrink: true }}
             />
           </Grid>
           <Grid item xs={12}>
@@ -277,6 +275,7 @@ const AddUser: React.FC = () => {
               required
               error={!!fieldErrors.password}
               helperText={fieldErrors.password}
+              InputLabelProps={{ shrink: true }}
             />
           </Grid>
           <Grid item xs={12}>

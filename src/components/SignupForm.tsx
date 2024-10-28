@@ -13,10 +13,10 @@ import {
   SelectChangeEvent,
 } from "@mui/material";
 import { useRouter } from "next/router";
-import axiosInstance from "@utils/axiosInstance";
 import ToastNotification from "@components/ToastNotification";
 import axios from "axios";
 import { genderOptions, religionOptions } from "@utils/constant";
+import { backendBaseUrl } from "@configs/config";
 
 const SignupForm: React.FC = () => {
   const [form, setForm] = useState({
@@ -26,7 +26,7 @@ const SignupForm: React.FC = () => {
     phoneNumber: "",
     dob: "",
     gender: "",
-    religion: "None",
+    religion: "",
     password: "",
   });
 
@@ -55,7 +55,7 @@ const SignupForm: React.FC = () => {
     setFieldErrors({}); // Clear previous errors
 
     try {
-      const response = await axiosInstance.post("/user/sign-up", form);
+      const response = await axios.post(`${backendBaseUrl}/user/sign-up`, form);
 
       if (response.status === 201) {
         setToastMessage("Signup successful!");

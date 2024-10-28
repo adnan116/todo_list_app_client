@@ -1,9 +1,21 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Layout from "@components/Layout";
 import UserList from "@components/UserList";
 import { Container } from "@mui/material";
+import { useRouter } from "next/router";
 
 const GetUserPage: React.FC = () => {
+  const router = useRouter();
+  useEffect(() => {
+    let token;
+    if (typeof window !== "undefined") {
+      token = window.localStorage.getItem("token");
+    }
+    if (!token) {
+      router.push("/");
+    }
+  });
+
   return (
     <Layout>
       <Container>

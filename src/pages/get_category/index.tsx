@@ -1,11 +1,12 @@
 import React, { useEffect } from "react";
-import { Container } from "@mui/material";
 import Layout from "@components/Layout";
-import AddUser from "@components/AddUser";
+import TaskCategoryList from "@components/TaskCategoryList";
+import { Container } from "@mui/material";
 import { useRouter } from "next/router";
 
-const AddUserPage: React.FC = () => {
+const GetCategoryPage: React.FC = () => {
   const router = useRouter();
+
   useEffect(() => {
     let token;
     if (typeof window !== "undefined") {
@@ -14,22 +15,16 @@ const AddUserPage: React.FC = () => {
     if (!token) {
       router.push("/");
     }
-  });
+  }, [router]);
 
   return (
     <Layout>
-      <Container
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          minHeight: "100vh",
-        }}
-      >
-        <AddUser />
+      <Container>
+        <h1>Task Category List</h1>
+        <TaskCategoryList />
       </Container>
     </Layout>
   );
 };
 
-export default AddUserPage;
+export default GetCategoryPage;

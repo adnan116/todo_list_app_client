@@ -12,6 +12,7 @@ import {
 import axios from "axios";
 import { genderOptions, religionOptions } from "@utils/constant";
 import moment from "moment";
+import { backendBaseUrl } from "@configs/config";
 
 interface Role {
   id: string;
@@ -26,20 +27,22 @@ interface UpdateUserModalProps {
 }
 
 interface User {
-  _id: string;
-  first_name: string;
-  last_name: string;
+  id: string;
+  firstName: string;
+  lastName: string;
   dob: string; // Ensure this is in 'YYYY-MM-DD' format
-  phone_number: string;
+  phoneNumber: string;
   email: string;
   gender: string;
   religion: string;
-  role_id: {
-    _id: string;
-    role_name: string;
-  };
+  roleId:
+    | {
+        id: string;
+        roleName: string;
+      }
+    | string;
   username?: string;
-  is_active?: boolean;
+  isActive?: boolean;
 }
 
 const UpdateUserModal: React.FC<UpdateUserModalProps> = ({
@@ -62,14 +65,11 @@ const UpdateUserModal: React.FC<UpdateUserModalProps> = ({
     const fetchRoles = async () => {
       try {
         const token = window.localStorage.getItem("token");
-        const response = await axios.get(
-          "http://localhost:5000/user/all-roles",
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+        const response = await axios.get(`${backendBaseUrl}/user/all-roles`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
 
         if (response.status === 200) {
           const fetchedRoles = response.data.data;
@@ -91,15 +91,22 @@ const UpdateUserModal: React.FC<UpdateUserModalProps> = ({
 
   useEffect(() => {
     if (user) {
-      setFirstName(user.first_name);
-      setLastName(user.last_name);
+      setFirstName(user.firstName);
+      setLastName(user.lastName);
       // Set DOB in correct format
       setDob(moment(user.dob).format("YYYY-MM-DD"));
-      setPhoneNumber(user.phone_number);
+      setPhoneNumber(user.phoneNumber);
       setEmail(user.email);
       setGender(user.gender);
       setReligion(user.religion);
-      setRoleId(user.role_id._id);
+      setRoleId(
+        (
+          user.roleId as {
+            id: string;
+            roleName: string;
+          }
+        ).id
+      );
     }
   }, [user]);
 
@@ -116,39 +123,7 @@ const UpdateUserModal: React.FC<UpdateUserModalProps> = ({
         religion,
         roleId,
       };
-      await handleUpdateUser(user._id, updatedUser);
-    }
-  };
-
-  const handleUpdateUser = async (userId: string, updatedUser: any) => {
-    try {
-      const token = window.localStorage.getItem("token");
-      const response = await axios.put(
-        `http://localhost:5000/user/update/${userId}`,
-        updatedUser,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        await onUpdate({ ...user, ...updatedUser });
-        console.log("User updated successfully!"); // Log success message
-        onClose(); // Close the modal after updating
-      }
-    } catch (error: any) {
-      console.error("Error updating user:", error); // Log error details
-      if (axios.isAxiosError(error) && error.response) {
-        console.error(
-          `Failed to update user: ${
-            error.response.data.message || "Unknown error"
-          }`
-        );
-      } else {
-        console.error("An unexpected error occurred. Please try again.");
-      }
+      await onUpdate({ id: user.id, ...updatedUser });
     }
   };
 
@@ -189,7 +164,9 @@ const UpdateUserModal: React.FC<UpdateUserModalProps> = ({
             label="Date of Birth"
             type="date"
             value={dob} // Correctly formatted
-            onChange={(e) => setDob(e.target.value)}
+            onChange={(e) =>
+              setDob(moment(e.target.value).format("YYYY-MM-DD"))
+            }
             fullWidth
             margin="normal"
             InputLabelProps={{ shrink: true }}

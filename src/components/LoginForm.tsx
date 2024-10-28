@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { TextField, Button, Typography, Paper, Box } from "@mui/material";
 import { useRouter } from "next/router";
-import axiosInstance from "@utils/axiosInstance";
 import axios from "axios";
+import { backendBaseUrl } from "@configs/config";
 
 const LoginForm: React.FC = () => {
   const [username, setUsername] = useState("");
@@ -15,7 +15,7 @@ const LoginForm: React.FC = () => {
     setError("");
 
     try {
-      const response = await axiosInstance.post("/user/login", {
+      const response = await axios.post(`${backendBaseUrl}/user/login`, {
         username,
         password,
       });
