@@ -1,8 +1,6 @@
-"use client";
-
 import React from "react";
 import { useRouter } from "next/router";
-import { Divider, Typography, Collapse } from "@mui/material";
+import { Typography, Collapse } from "@mui/material";
 import { ExpandMore, ExpandLess } from "@mui/icons-material";
 import { featureMapping } from "@utils/constant";
 
@@ -16,7 +14,6 @@ const Sidebar: React.FC<SidebarProps> = ({ permittedFeatures }) => {
   const [openTaskCategory, setOpenTaskCategory] = React.useState(false);
   const [openTask, setOpenTask] = React.useState(false);
 
-  // Generate menuItems with only permitted features per category
   const menuItems = Object.entries(featureMapping).reduce(
     (acc, [category, features]) => {
       const permitted = features.filter((feature) =>

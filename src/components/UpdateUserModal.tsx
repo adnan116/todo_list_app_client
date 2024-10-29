@@ -13,6 +13,7 @@ import axios from "axios";
 import { genderOptions, religionOptions } from "@utils/constant";
 import moment from "moment";
 import { backendBaseUrl } from "@configs/config";
+import { useRouter } from "next/router";
 
 interface Role {
   id: string;
@@ -30,7 +31,7 @@ interface User {
   id: string;
   firstName: string;
   lastName: string;
-  dob: string; // Ensure this is in 'YYYY-MM-DD' format
+  dob: string;
   phoneNumber: string;
   email: string;
   gender: string;
@@ -61,31 +62,34 @@ const UpdateUserModal: React.FC<UpdateUserModalProps> = ({
   const [roleId, setRoleId] = useState("");
   const [roles, setRoles] = useState<Role[]>([]);
 
-  useEffect(() => {
-    const fetchRoles = async () => {
-      try {
-        const token = window.localStorage.getItem("token");
-        const response = await axios.get(`${backendBaseUrl}/user/all-roles`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+  const router = useRouter();
+  const fetchRoles = async () => {
+    try {
+      const token = window.localStorage.getItem("token");
+      const response = await axios.get(`${backendBaseUrl}/user/all-roles`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (response.status === 200) {
+        const fetchedRoles = response.data.data;
+        const sortedRoles = fetchedRoles.sort((a: Role, b: Role) =>
+          a.roleName.localeCompare(b.roleName)
+        );
 
-        if (response.status === 200) {
-          const fetchedRoles = response.data.data;
-
-          // Sort the roles alphabetically by roleName
-          const sortedRoles = fetchedRoles.sort((a: Role, b: Role) =>
-            a.roleName.localeCompare(b.roleName)
-          );
-
-          setRoles(sortedRoles);
-        }
-      } catch (error) {
+        setRoles(sortedRoles);
+      }
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response?.status === 401) {
+        console.error("Unauthorized access - Redirecting to login.");
+        router.push("/");
+      } else {
         console.error("Failed to fetch roles:", error);
       }
-    };
+    }
+  };
 
+  useEffect(() => {
     fetchRoles();
   }, []);
 
@@ -93,7 +97,6 @@ const UpdateUserModal: React.FC<UpdateUserModalProps> = ({
     if (user) {
       setFirstName(user.firstName);
       setLastName(user.lastName);
-      // Set DOB in correct format
       setDob(moment(user.dob).format("YYYY-MM-DD"));
       setPhoneNumber(user.phoneNumber);
       setEmail(user.email);
@@ -152,6 +155,7 @@ const UpdateUserModal: React.FC<UpdateUserModalProps> = ({
             margin="normal"
             required
           />
+
           <TextField
             label="Last Name"
             value={lastName}
@@ -160,10 +164,11 @@ const UpdateUserModal: React.FC<UpdateUserModalProps> = ({
             margin="normal"
             required
           />
+
           <TextField
             label="Date of Birth"
             type="date"
-            value={dob} // Correctly formatted
+            value={dob}
             onChange={(e) =>
               setDob(moment(e.target.value).format("YYYY-MM-DD"))
             }
@@ -172,6 +177,7 @@ const UpdateUserModal: React.FC<UpdateUserModalProps> = ({
             InputLabelProps={{ shrink: true }}
             required
           />
+
           <TextField
             label="Phone Number"
             value={phoneNumber}
@@ -180,6 +186,7 @@ const UpdateUserModal: React.FC<UpdateUserModalProps> = ({
             margin="normal"
             required
           />
+
           <TextField
             label="Email"
             type="email"
@@ -190,7 +197,6 @@ const UpdateUserModal: React.FC<UpdateUserModalProps> = ({
             required
           />
 
-          {/* Gender Dropdown */}
           <FormControl variant="outlined" fullWidth margin="normal" required>
             <InputLabel>Gender</InputLabel>
             <Select
@@ -206,7 +212,6 @@ const UpdateUserModal: React.FC<UpdateUserModalProps> = ({
             </Select>
           </FormControl>
 
-          {/* Religion Dropdown */}
           <FormControl variant="outlined" fullWidth margin="normal" required>
             <InputLabel>Religion</InputLabel>
             <Select
@@ -222,7 +227,6 @@ const UpdateUserModal: React.FC<UpdateUserModalProps> = ({
             </Select>
           </FormControl>
 
-          {/* Role Dropdown */}
           <FormControl variant="outlined" fullWidth margin="normal" required>
             <InputLabel>Role</InputLabel>
             <Select

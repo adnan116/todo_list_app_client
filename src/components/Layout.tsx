@@ -11,11 +11,6 @@ interface LayoutProps {
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const router = useRouter();
   const [permittedFeatures, setPermittedFeatures] = useState<string[]>([]);
-  const [userInfo, setUserInfo] = useState<{
-    firstName: string;
-    lastName: string;
-    email: string;
-  } | null>(null);
 
   useEffect(() => {
     let token;
@@ -30,11 +25,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           window.localStorage.getItem("permittedFeatures") || "[]"
         );
         setPermittedFeatures(permittedFeatures || []);
-
-        const userdata = JSON.parse(
-          window.localStorage.getItem("userInfo") || "{}"
-        );
-        setUserInfo(userdata);
       }
     }
   }, [router]);

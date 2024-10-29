@@ -26,7 +26,7 @@ const AddTaskCategory: React.FC = () => {
 
   const handleAddTaskCategory = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setFieldErrors({}); // Clear previous errors
+    setFieldErrors({});
 
     try {
       const token = window.localStorage.getItem("token");

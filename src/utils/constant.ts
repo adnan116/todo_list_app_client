@@ -13,3 +13,12 @@ export const featureMapping: { [key: string]: string[] } = {
   Task_Category: ["ADD_CATEGORY", "GET_CATEGORY"],
   Task: ["ADD_TASK", "GET_TASK"],
 };
+
+export const taskStatusOptions = [
+  "TODO",
+  "Pending",
+  "In Progress",
+  "Complete",
+  "Close",
+  "Cancelled",
+];

@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { Modal, Box, TextField, Button } from "@mui/material";
-import axios from "axios";
 
 interface TaskCategory {
   id: string;

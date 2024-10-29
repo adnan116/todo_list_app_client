@@ -1,0 +1,25 @@
+.root {
+  margin: 20px;
+  padding: 20px;
+}
+
+.searchContainer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.searchInput {
+  flex: 1;
+  margin-right: 10px;
+}
+
+.filterSelect {
+  min-width: 150px;
+  margin-right: 10px;
+}
+
+.searchButton {
+  align-self: flex-end;
+}

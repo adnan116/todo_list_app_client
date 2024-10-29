@@ -41,7 +41,7 @@ const SignupForm: React.FC = () => {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
-    setFieldErrors({ ...fieldErrors, [e.target.name]: "" }); // Clear field-specific errors
+    setFieldErrors({ ...fieldErrors, [e.target.name]: "" });
   };
 
   const handleSelectChange = (e: SelectChangeEvent<string>) => {
@@ -52,7 +52,7 @@ const SignupForm: React.FC = () => {
 
   const handleSignup = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setFieldErrors({}); // Clear previous errors
+    setFieldErrors({});
 
     try {
       const response = await axios.post(`${backendBaseUrl}/user/sign-up`, form);
@@ -61,7 +61,7 @@ const SignupForm: React.FC = () => {
         setToastMessage("Signup successful!");
         setToastSeverity("success");
         setToastOpen(true);
-        router.push("/"); // Redirect to home page after signup
+        router.push("/");
       }
     } catch (error) {
       handleError(error);
@@ -259,7 +259,6 @@ const SignupForm: React.FC = () => {
         </Box>
       </form>
 
-      {/* Toast Notification for error/success messages */}
       <ToastNotification
         open={toastOpen}
         onClose={handleToastClose}

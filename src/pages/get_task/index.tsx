@@ -1,11 +1,14 @@
+// src/pages/get_task/index.tsx
+
 import React, { useEffect } from "react";
 import Layout from "@components/Layout";
-import AddTaskCategory from "@components/AddTaskCategory";
+import TaskList from "@components/TaskList";
 import { Container } from "@mui/material";
 import { useRouter } from "next/router";
 
-const AddCategoryPage: React.FC = () => {
+const GetTaskPage: React.FC = () => {
   const router = useRouter();
+
   useEffect(() => {
     let token;
     if (typeof window !== "undefined") {
@@ -19,10 +22,11 @@ const AddCategoryPage: React.FC = () => {
   return (
     <Layout>
       <Container>
-        <AddTaskCategory />
+        <h1>Task List</h1>
+        <TaskList />
       </Container>
     </Layout>
   );
 };
 
-export default AddCategoryPage;
+export default GetTaskPage;

@@ -8,7 +8,6 @@ import {
   TableRow,
   TablePagination,
   TextField,
-  Button,
   IconButton,
   Paper,
 } from "@mui/material";
@@ -20,6 +19,7 @@ import ToastNotification from "@components/ToastNotification";
 import UpdateTaskCategoryModal from "./UpdateTaskCategoryModal";
 import styles from "@styles/userlist.module.css";
 import { backendBaseUrl } from "@configs/config";
+import { useRouter } from "next/router";
 
 interface TaskCategory {
   id: string;
@@ -46,19 +46,19 @@ const TaskCategoryList: React.FC = () => {
     null
   );
 
-  // Toast state
   const [toastOpen, setToastOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
   const [toastSeverity, setToastSeverity] = useState<
     "success" | "error" | "warning"
   >("success");
 
+  const router = useRouter();
   const fetchCategories = async () => {
     try {
       const token = window.localStorage.getItem("token");
       const response = await axios.get(
         `${backendBaseUrl}/task-category/list?page=${currentPage}&limit=${rowsPerPage}${
-          searchQuery ? `&search=${searchQuery}` : ""
+          search ? `&search=${search}` : ""
         }`,
         {
           headers: {
@@ -73,21 +73,21 @@ const TaskCategoryList: React.FC = () => {
         setTotalCategories(response.data.data.totalCategories);
       }
     } catch (error) {
-      console.error("Error fetching task categories:", error);
+      if (axios.isAxiosError(error) && error.response?.status === 401) {
+        console.error("Unauthorized access - Redirecting to login.");
+        router.push("/");
+      } else {
+        console.error("Error fetching task categories:", error);
+      }
     }
   };
 
   useEffect(() => {
     fetchCategories();
-  }, [currentPage, rowsPerPage, searchQuery]);
+  }, [currentPage, rowsPerPage, search]);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearch(e.target.value);
-  };
-
-  const handleSearchSubmit = () => {
-    setSearchQuery(search);
-    setCurrentPage(1);
   };
 
   const handlePageChange = (
@@ -124,13 +124,12 @@ const TaskCategoryList: React.FC = () => {
         fetchCategories();
         setConfirmDelete(false);
         setCategoryIdToDelete(null);
-        // Show success toast
+
         setToastMessage("Task category deleted successfully!");
         setToastSeverity("success");
         setToastOpen(true);
       } catch (error) {
         console.error("Error deleting task category:", error);
-        // Show error toast
         setToastMessage("Error deleting task category.");
         setToastSeverity("error");
         setToastOpen(true);
@@ -193,13 +192,6 @@ const TaskCategoryList: React.FC = () => {
           onChange={handleSearchChange}
           className={styles.searchInput}
         />
-        <Button
-          variant="contained"
-          onClick={handleSearchSubmit}
-          className={styles.searchButton}
-        >
-          Search
-        </Button>
       </div>
       <TableContainer>
         <Table>

@@ -8,7 +8,6 @@ import {
   TableRow,
   TablePagination,
   TextField,
-  Button,
   IconButton,
   Paper,
 } from "@mui/material";
@@ -44,17 +43,15 @@ interface User {
 const UserList: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [search, setSearch] = useState("");
-  const [searchQuery, setSearchQuery] = useState("");
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [userIdToDelete, setUserIdToDelete] = useState<string | null>(null);
   const [totalUsers, setTotalUsers] = useState<number>(0);
   const [updateModalOpen, setUpdateModalOpen] = useState(false);
   const [userToUpdate, setUserToUpdate] = useState<User | null>(null);
 
-  // Toast state
+
   const [toastOpen, setToastOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
   const [toastSeverity, setToastSeverity] = useState<
@@ -68,7 +65,7 @@ const UserList: React.FC = () => {
       const token = window.localStorage.getItem("token");
       const response = await axios.get(
         `${backendBaseUrl}/user/list?page=${currentPage}&limit=${rowsPerPage}${
-          searchQuery ? `&search=${searchQuery}` : ""
+          search ? `&search=${search}` : ""
         }`,
         {
           headers: {
@@ -79,11 +76,9 @@ const UserList: React.FC = () => {
 
       if (response.status === 200) {
         setUsers(response.data.data.users);
-        setTotalPages(response.data.data.totalPages);
         setTotalUsers(response.data.data.totalUsers);
       }
     } catch (error) {
-      // Check if the error is an AxiosError and if the response status is 401
       if (axios.isAxiosError(error) && error.response?.status === 401) {
         console.error("Unauthorized access - Redirecting to login.");
         router.push("/");
@@ -95,15 +90,10 @@ const UserList: React.FC = () => {
 
   useEffect(() => {
     fetchUsers();
-  }, [currentPage, rowsPerPage, searchQuery]);
+  }, [currentPage, rowsPerPage, search]);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearch(e.target.value);
-  };
-
-  const handleSearchSubmit = () => {
-    setSearchQuery(search);
-    setCurrentPage(1);
   };
 
   const handlePageChange = (
@@ -137,13 +127,12 @@ const UserList: React.FC = () => {
         fetchUsers();
         setConfirmDelete(false);
         setUserIdToDelete(null);
-        // Show success toast
+
         setToastMessage("User deleted successfully!");
         setToastSeverity("success");
         setToastOpen(true);
       } catch (error) {
         console.error("Error deleting user:", error);
-        // Show error toast
         setToastMessage("Error deleting user.");
         setToastSeverity("error");
         setToastOpen(true);
@@ -212,13 +201,6 @@ const UserList: React.FC = () => {
           onChange={handleSearchChange}
           className={styles.searchInput}
         />
-        <Button
-          variant="contained"
-          onClick={handleSearchSubmit}
-          className={styles.searchButton}
-        >
-          Search
-        </Button>
       </div>
       <TableContainer>
         <Table>

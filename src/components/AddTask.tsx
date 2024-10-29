@@ -14,57 +14,79 @@ import {
 import { useRouter } from "next/router";
 import axios from "axios";
 import ToastNotification from "@components/ToastNotification";
-import { genderOptions, religionOptions } from "@utils/constant";
 import { backendBaseUrl } from "@configs/config";
+import { taskStatusOptions } from "@utils/constant";
 
-const AddUser: React.FC = () => {
+const AddTask: React.FC = () => {
   const [form, setForm] = useState({
-    firstName: "",
-    lastName: "",
-    email: "",
-    phoneNumber: "",
-    dob: "",
-    gender: "",
-    religion: "",
-    password: "",
-    roleId: "",
+    title: "",
+    description: "",
+    status: "",
+    deadline: "",
+    categoryId: "",
+    userId: "",
   });
 
-  const [roles, setRoles] = useState<{ id: string; roleName: string }[]>([]);
+  const [categories, setCategories] = useState<
+    { id: string; categoryName: string }[]
+  >([]);
+  const [users, setUsers] = useState<
+    { id: string; firstName: string; lastName: string }[]
+  >([]);
+
   const [toastOpen, setToastOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
   const [toastSeverity, setToastSeverity] = useState<
     "success" | "error" | "warning"
   >("success");
-
   const [fieldErrors, setFieldErrors] = useState<{ [key: string]: string }>({});
+
   const router = useRouter();
 
-  const fetchRoles = async () => {
+  useEffect(() => {
+    fetchCategories();
+    fetchUsers();
+  }, []);
+
+  const fetchCategories = async () => {
     try {
       const token = window.localStorage.getItem("token");
-      const response = await axios.get(`${backendBaseUrl}/user/all-roles`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
+      const response = await axios.get(
+        `${backendBaseUrl}/task-category/all-categories`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       if (response.status === 200) {
-        setRoles(response.data.data);
+        setCategories(response.data.data);
       }
     } catch (error) {
-      if (axios.isAxiosError(error) && error.response?.status === 401) {
-        console.error("Unauthorized access - Redirecting to login.");
-        router.push("/");
-      } else {
-        console.error("Error fetching users:", error);
-      }
+      handleUnauthorizedError(error);
     }
   };
 
-  useEffect(() => {
-    fetchRoles();
-  }, []);
+  const fetchUsers = async () => {
+    try {
+      const token = window.localStorage.getItem("token");
+      const response = await axios.get(`${backendBaseUrl}/user/all-users`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (response.status === 200) {
+        setUsers(response.data.data);
+      }
+    } catch (error) {
+      handleUnauthorizedError(error);
+    }
+  };
+
+  const handleUnauthorizedError = (error: any) => {
+    if (axios.isAxiosError(error) && error.response?.status === 401) {
+      console.error("Unauthorized access - Redirecting to login.");
+      router.push("/");
+    } else {
+      console.error("Error:", error);
+    }
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -77,25 +99,21 @@ const AddUser: React.FC = () => {
     setFieldErrors({ ...fieldErrors, [name]: "" });
   };
 
-  const handleAddUser = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleAddTask = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setFieldErrors({});
 
     try {
       const token = window.localStorage.getItem("token");
-      const response = await axios.post(`${backendBaseUrl}/user/create`, form, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+      const response = await axios.post(`${backendBaseUrl}/task/create`, form, {
+        headers: { Authorization: `Bearer ${token}` },
       });
 
       if (response.status === 201) {
-        setToastMessage("User added successfully!");
+        setToastMessage("Task added successfully!");
         setToastSeverity("success");
         setToastOpen(true);
-        setTimeout(() => {
-          router.push("/get_user");
-        }, 3000);
+        setTimeout(() => router.push("/get_task"), 3000);
       }
     } catch (error: any) {
       handleError(error);
@@ -106,15 +124,14 @@ const AddUser: React.FC = () => {
     if (axios.isAxiosError(error)) {
       if (error.response) {
         const { message, errors } = error.response.data;
-
         if (Array.isArray(errors) && errors.length > 0) {
-          setToastMessage(errors[0]?.message || "Failed to add user");
+          setToastMessage(errors[0]?.message || "Failed to add task");
           setFieldErrors((prevErrors) => ({
             ...prevErrors,
             [errors[0]?.field]: errors[0]?.message,
           }));
         } else {
-          setToastMessage(message || "Failed to add user");
+          setToastMessage(message || "Failed to add task");
         }
         setToastSeverity("error");
       } else {
@@ -128,83 +145,54 @@ const AddUser: React.FC = () => {
     setToastOpen(true);
   };
 
-  const handleToastClose = () => {
-    setToastOpen(false);
-  };
+  const handleToastClose = () => setToastOpen(false);
 
   return (
     <Paper elevation={6} sx={{ padding: 4, borderRadius: 2, width: 500 }}>
-      <form onSubmit={handleAddUser}>
+      <form onSubmit={handleAddTask}>
         <Typography variant="h5" component="h1" gutterBottom>
-          Add New User
+          Add New Task
         </Typography>
         <Grid container spacing={2}>
           <Grid item xs={12}>
             <TextField
-              name="firstName"
-              label="First Name"
+              name="title"
+              label="Title"
               variant="outlined"
               fullWidth
-              value={form.firstName}
+              value={form.title}
               onChange={handleInputChange}
               required
-              error={!!fieldErrors.firstName}
-              helperText={fieldErrors.firstName}
+              error={!!fieldErrors.title}
+              helperText={fieldErrors.title}
             />
           </Grid>
           <Grid item xs={12}>
             <TextField
-              name="lastName"
-              label="Last Name"
+              name="description"
+              label="Description"
               variant="outlined"
               fullWidth
-              value={form.lastName}
+              value={form.description}
               onChange={handleInputChange}
               required
-              error={!!fieldErrors.lastName}
-              helperText={fieldErrors.lastName}
-            />
-          </Grid>
-          <Grid item xs={12}>
-            <TextField
-              name="email"
-              label="Email"
-              variant="outlined"
-              fullWidth
-              value={form.email}
-              onChange={handleInputChange}
-              required
-              error={!!fieldErrors.email}
-              helperText={fieldErrors.email}
-              InputLabelProps={{ shrink: true }}
-            />
-          </Grid>
-          <Grid item xs={12}>
-            <TextField
-              name="phoneNumber"
-              label="Phone Number"
-              variant="outlined"
-              fullWidth
-              value={form.phoneNumber}
-              onChange={handleInputChange}
-              required
-              error={!!fieldErrors.phoneNumber}
-              helperText={fieldErrors.phoneNumber}
+              error={!!fieldErrors.description}
+              helperText={fieldErrors.description}
             />
           </Grid>
           <Grid item xs={6}>
             <TextField
-              name="dob"
-              label="Date of Birth"
+              name="deadline"
+              label="Deadline"
               type="date"
               variant="outlined"
               fullWidth
               InputLabelProps={{ shrink: true }}
-              value={form.dob}
+              value={form.deadline}
               onChange={handleInputChange}
               required
-              error={!!fieldErrors.dob}
-              helperText={fieldErrors.dob}
+              error={!!fieldErrors.deadline}
+              helperText={fieldErrors.deadline}
             />
           </Grid>
           <Grid item xs={6}>
@@ -212,93 +200,78 @@ const AddUser: React.FC = () => {
               variant="outlined"
               fullWidth
               required
-              error={!!fieldErrors.gender}
+              error={!!fieldErrors.status}
             >
-              <InputLabel>Gender</InputLabel>
+              <InputLabel>Status</InputLabel>
               <Select
-                name="gender"
-                value={form.gender}
+                name="status"
+                value={form.status}
                 onChange={handleSelectChange}
-                label="Gender"
+                label="Status"
               >
-                {genderOptions.map((option) => (
-                  <MenuItem key={option} value={option}>
-                    {option}
+                {taskStatusOptions.map((status) => (
+                  <MenuItem key={status} value={status}>
+                    {status}
                   </MenuItem>
                 ))}
               </Select>
-              {fieldErrors.gender && (
+              {fieldErrors.status && (
                 <Typography variant="caption" color="error">
-                  {fieldErrors.gender}
+                  {fieldErrors.status}
                 </Typography>
               )}
             </FormControl>
           </Grid>
-          <Grid item xs={12}>
+          <Grid item xs={6}>
             <FormControl
               variant="outlined"
               fullWidth
               required
-              error={!!fieldErrors.religion}
+              error={!!fieldErrors.categoryId}
             >
-              <InputLabel>Religion</InputLabel>
+              <InputLabel>Category</InputLabel>
               <Select
-                name="religion"
-                value={form.religion}
+                name="categoryId"
+                value={form.categoryId}
                 onChange={handleSelectChange}
-                label="Religion"
+                label="Category"
               >
-                {religionOptions.map((option) => (
-                  <MenuItem key={option} value={option}>
-                    {option}
+                {categories.map((category) => (
+                  <MenuItem key={category.id} value={category.id}>
+                    {category.categoryName}
                   </MenuItem>
                 ))}
               </Select>
-              {fieldErrors.religion && (
+              {fieldErrors.categoryId && (
                 <Typography variant="caption" color="error">
-                  {fieldErrors.religion}
+                  {fieldErrors.categoryId}
                 </Typography>
               )}
             </FormControl>
           </Grid>
-          <Grid item xs={12}>
-            <TextField
-              name="password"
-              label="Password"
-              type="password"
-              variant="outlined"
-              fullWidth
-              value={form.password}
-              onChange={handleInputChange}
-              required
-              error={!!fieldErrors.password}
-              helperText={fieldErrors.password}
-              InputLabelProps={{ shrink: true }}
-            />
-          </Grid>
-          <Grid item xs={12}>
+          <Grid item xs={6}>
             <FormControl
               variant="outlined"
               fullWidth
               required
-              error={!!fieldErrors.roleId}
+              error={!!fieldErrors.userId}
             >
-              <InputLabel>Role</InputLabel>
+              <InputLabel>Assigned User</InputLabel>
               <Select
-                name="roleId"
-                value={form.roleId}
+                name="userId"
+                value={form.userId}
                 onChange={handleSelectChange}
-                label="Role"
+                label="Assigned User"
               >
-                {roles.map((role) => (
-                  <MenuItem key={role.id} value={role.id}>
-                    {role.roleName}
+                {users.map((user) => (
+                  <MenuItem key={user.id} value={user.id}>
+                    {user.firstName} {user.lastName}
                   </MenuItem>
                 ))}
               </Select>
-              {fieldErrors.roleId && (
+              {fieldErrors.userId && (
                 <Typography variant="caption" color="error">
-                  {fieldErrors.roleId}
+                  {fieldErrors.userId}
                 </Typography>
               )}
             </FormControl>
@@ -311,10 +284,9 @@ const AddUser: React.FC = () => {
           fullWidth
           sx={{ mt: 2 }}
         >
-          Add User
+          Add Task
         </Button>
       </form>
-
       <ToastNotification
         open={toastOpen}
         onClose={handleToastClose}
@@ -325,4 +297,4 @@ const AddUser: React.FC = () => {
   );
 };
 
-export default AddUser;
+export default AddTask;

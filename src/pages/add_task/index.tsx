@@ -1,11 +1,12 @@
 import React, { useEffect } from "react";
-import Layout from "@components/Layout";
-import AddTaskCategory from "@components/AddTaskCategory";
 import { Container } from "@mui/material";
+import Layout from "@components/Layout";
+import AddTask from "@components/AddTask";
 import { useRouter } from "next/router";
 
-const AddCategoryPage: React.FC = () => {
+const AddTaskPage: React.FC = () => {
   const router = useRouter();
+
   useEffect(() => {
     let token;
     if (typeof window !== "undefined") {
@@ -18,11 +19,18 @@ const AddCategoryPage: React.FC = () => {
 
   return (
     <Layout>
-      <Container>
-        <AddTaskCategory />
+      <Container
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          minHeight: "100vh",
+        }}
+      >
+        <AddTask />
       </Container>
     </Layout>
   );
 };
 
-export default AddCategoryPage;
+export default AddTaskPage;

@@ -3,6 +3,7 @@ import { TextField, Button, Typography, Paper, Box } from "@mui/material";
 import { useRouter } from "next/router";
 import axios from "axios";
 import { backendBaseUrl } from "@configs/config";
+import bcrypt from "bcryptjs";
 
 const LoginForm: React.FC = () => {
   const [username, setUsername] = useState("");
@@ -26,18 +27,20 @@ const LoginForm: React.FC = () => {
         if (typeof window !== "undefined") {
           window.localStorage.setItem("token", accessToken);
           window.localStorage.setItem("userInfo", JSON.stringify(userInfo));
-          window.localStorage.setItem("userType", userType);
+          window.localStorage.setItem(
+            "userType",
+            await bcrypt.hash(userType, 10)
+          );
           window.localStorage.setItem(
             "permittedFeatures",
             JSON.stringify(permittedFeatures)
           );
         }
-        router.push("/dashboard"); // Redirect to the dashboard
+        router.push("/dashboard");
       } else {
         setError("Login failed. Please check your credentials.");
       }
     } catch (error) {
-      // Type assertion to check if error is an AxiosError
       if (axios.isAxiosError(error)) {
         setError(error.response?.data?.message || "Login failed.");
       } else {
