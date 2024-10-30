@@ -31,10 +31,10 @@ const Dashboard: React.FC = () => {
   return (
     <Layout>
       <div className={styles.content}>
-        <h1>{`Welcome, ${
+        <h3>{`Welcome, ${
           userInfo && userInfo?.firstName ? userInfo.firstName : ""
-        } ${userInfo && userInfo?.lastName ? userInfo.lastName : ""}`}</h1>
-        <h3>{"Let’s Make Today Productive"}</h3>
+        } ${userInfo && userInfo?.lastName ? userInfo.lastName : ""}`}</h3>
+        <h4>{"Let’s Make Today Productive"}</h4>
       </div>
     </Layout>
   );

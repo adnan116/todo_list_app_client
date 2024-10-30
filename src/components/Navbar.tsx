@@ -20,7 +20,7 @@ const Navbar: React.FC = () => {
         } else if (isUser) {
           setUserType("User");
         } else {
-          setUserType(null); // Set to null if no match
+          setUserType("");
         }
       }
     }
@@ -42,7 +42,9 @@ const Navbar: React.FC = () => {
 
   return (
     <AppBar position="static" sx={{ backgroundColor: "#1976d2", boxShadow: 3 }}>
-      <Toolbar>
+      <Toolbar
+        sx={{ display: "flex", justifyContent: "space-between", width: "100%" }}
+      >
         <Link
           href="/dashboard"
           style={{ textDecoration: "none", color: "inherit" }}
@@ -52,7 +54,18 @@ const Navbar: React.FC = () => {
           </Typography>
         </Link>
 
-        {/* Box for the Logout button to align it to the right */}
+        <Box
+          sx={{
+            flexGrow: 2,
+            display: "flex",
+            justifyContent: "center",
+          }}
+        >
+          <Typography variant="h4" sx={{ marginLeft: "350px" }}>
+            Enhanced ToDo List Application
+          </Typography>
+        </Box>
+
         <Box sx={{ display: "flex", justifyContent: "flex-end", flexGrow: 1 }}>
           <Button
             color="inherit"
