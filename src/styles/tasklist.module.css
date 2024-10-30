@@ -16,10 +16,6 @@
 }
 
 .filterSelect {
-  min-width: 150px;
+  min-width: 200px;
   margin-right: 10px;
-}
-
-.searchButton {
-  align-self: flex-end;
 }

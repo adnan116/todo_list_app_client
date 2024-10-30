@@ -18,7 +18,15 @@ const AddCategoryPage: React.FC = () => {
 
   return (
     <Layout>
-      <Container>
+      <Container
+        sx={{
+          height: "85vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          overflow: "hidden",
+        }}
+      >
         <AddTaskCategory />
       </Container>
     </Layout>

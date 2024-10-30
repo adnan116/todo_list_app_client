@@ -34,6 +34,7 @@ const Dashboard: React.FC = () => {
         <h1>{`Welcome, ${
           userInfo && userInfo?.firstName ? userInfo.firstName : ""
         } ${userInfo && userInfo?.lastName ? userInfo.lastName : ""}`}</h1>
+        <h3>{"Let’s Make Today Productive"}</h3>
       </div>
     </Layout>
   );

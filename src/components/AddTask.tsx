@@ -44,49 +44,49 @@ const AddTask: React.FC = () => {
   const router = useRouter();
 
   useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const token = window.localStorage.getItem("token");
+        const response = await axios.get(
+          `${backendBaseUrl}/task-category/all-categories`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        if (response.status === 200) {
+          setCategories(response.data.data);
+        }
+      } catch (error) {
+        handleUnauthorizedError(error);
+      }
+    };
+
+    const fetchUsers = async () => {
+      try {
+        const token = window.localStorage.getItem("token");
+        const response = await axios.get(`${backendBaseUrl}/user/all-users`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (response.status === 200) {
+          setUsers(response.data.data);
+        }
+      } catch (error) {
+        handleUnauthorizedError(error);
+      }
+    };
+
+    const handleUnauthorizedError = (error: unknown) => {
+      if (axios.isAxiosError(error) && error.response?.status === 401) {
+        console.error("Unauthorized access - Redirecting to login.");
+        router.push("/");
+      } else {
+        console.error("Error:", error);
+      }
+    };
+
     fetchCategories();
     fetchUsers();
-  }, []);
-
-  const fetchCategories = async () => {
-    try {
-      const token = window.localStorage.getItem("token");
-      const response = await axios.get(
-        `${backendBaseUrl}/task-category/all-categories`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-      if (response.status === 200) {
-        setCategories(response.data.data);
-      }
-    } catch (error) {
-      handleUnauthorizedError(error);
-    }
-  };
-
-  const fetchUsers = async () => {
-    try {
-      const token = window.localStorage.getItem("token");
-      const response = await axios.get(`${backendBaseUrl}/user/all-users`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (response.status === 200) {
-        setUsers(response.data.data);
-      }
-    } catch (error) {
-      handleUnauthorizedError(error);
-    }
-  };
-
-  const handleUnauthorizedError = (error: any) => {
-    if (axios.isAxiosError(error) && error.response?.status === 401) {
-      console.error("Unauthorized access - Redirecting to login.");
-      router.push("/");
-    } else {
-      console.error("Error:", error);
-    }
-  };
+  }, [router]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -115,12 +115,12 @@ const AddTask: React.FC = () => {
         setToastOpen(true);
         setTimeout(() => router.push("/get_task"), 3000);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       handleError(error);
     }
   };
 
-  const handleError = (error: any) => {
+  const handleError = (error: unknown) => {
     if (axios.isAxiosError(error)) {
       if (error.response) {
         const { message, errors } = error.response.data;
@@ -148,7 +148,17 @@ const AddTask: React.FC = () => {
   const handleToastClose = () => setToastOpen(false);
 
   return (
-    <Paper elevation={6} sx={{ padding: 4, borderRadius: 2, width: 500 }}>
+    <Paper
+      elevation={6}
+      sx={{
+        padding: 4,
+        borderRadius: 2,
+        width: "100%",
+        maxWidth: 500,
+        boxSizing: "border-box",
+        overflow: "hidden",
+      }}
+    >
       <form onSubmit={handleAddTask}>
         <Typography variant="h5" component="h1" gutterBottom>
           Add New Task

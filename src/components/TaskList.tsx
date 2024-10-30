@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Table,
   TableBody,
@@ -51,7 +51,7 @@ const TaskList: React.FC = () => {
 
   const router = useRouter();
 
-  const fetchTasks = async () => {
+  const fetchTasks = useCallback(async () => {
     try {
       const token = window.localStorage.getItem("token");
       const response = await axios.get(
@@ -83,9 +83,17 @@ const TaskList: React.FC = () => {
         console.error("Error fetching tasks:", error);
       }
     }
-  };
+  }, [
+    currentPage,
+    rowsPerPage,
+    search,
+    categoryId,
+    userId,
+    generalUserId,
+    router,
+  ]);
 
-  const fetchCategories = async () => {
+  const fetchCategories = useCallback(async () => {
     try {
       const token = window.localStorage.getItem("token");
       const response = await axios.get(
@@ -105,9 +113,9 @@ const TaskList: React.FC = () => {
         console.error("Error fetching categories:", error);
       }
     }
-  };
+  }, [router]);
 
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     try {
       const token = window.localStorage.getItem("token");
       const response = await axios.get(`${backendBaseUrl}/user/all-users`, {
@@ -124,9 +132,9 @@ const TaskList: React.FC = () => {
         console.error("Error fetching users:", error);
       }
     }
-  };
+  }, [router]);
 
-  const setUserType = async () => {
+  const setUserType = useCallback(async () => {
     if (typeof window !== "undefined") {
       const storedUserType = window.localStorage.getItem("userType");
       const userInfo = JSON.parse(
@@ -139,17 +147,17 @@ const TaskList: React.FC = () => {
         if (!isAdmin) setGeneralUserId(userInfo?.userId);
       }
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchCategories();
     fetchUsers();
     setUserType();
-  }, []);
+  }, [fetchCategories, fetchUsers, setUserType]);
 
   useEffect(() => {
     fetchTasks();
-  }, [currentPage, rowsPerPage, search, categoryId, userId, generalUserId]);
+  }, [fetchTasks]);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearch(e.target.value);
@@ -225,15 +233,15 @@ const TaskList: React.FC = () => {
         />
 
         <FormControl variant="outlined" className={styles.filterSelect}>
-          <InputLabel id="category-select-label" style={{ marginLeft: "30px" }}>
+          <InputLabel id="category-select-label" style={{ fontSize: "13px" }}>
             Filter By Category
           </InputLabel>
           <Select
             labelId="category-select-label"
             value={categoryId || ""}
             onChange={(e) => setCategoryId(e.target.value)}
-            label="Category"
-            style={{ minWidth: "200px", marginLeft: "30px" }}
+            label="Filter By Category"
+            style={{ minWidth: "200px" }}
           >
             <MenuItem value="">
               <em>None</em>
@@ -247,12 +255,15 @@ const TaskList: React.FC = () => {
         </FormControl>
         {isAdmin && (
           <FormControl variant="outlined" className={styles.filterSelect}>
-            <InputLabel id="user-select-label">Filter By User</InputLabel>
+            <InputLabel id="user-select-label" style={{ fontSize: "13px" }}>
+              Filter By User
+            </InputLabel>
             <Select
               labelId="user-select-label"
               value={userId || ""}
               onChange={(e) => setUserId(e.target.value)}
-              label="User"
+              label="Filter By User"
+              style={{ minWidth: "200px" }}
             >
               <MenuItem value="">
                 <em>None</em>
@@ -269,7 +280,7 @@ const TaskList: React.FC = () => {
         )}
       </div>
 
-      <TableContainer>
+      <TableContainer style={{ maxHeight: "400px", overflowY: "auto" }}>
         <Table>
           <TableHead>
             <TableRow>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Table,
   TableBody,
@@ -51,7 +51,6 @@ const UserList: React.FC = () => {
   const [updateModalOpen, setUpdateModalOpen] = useState(false);
   const [userToUpdate, setUserToUpdate] = useState<User | null>(null);
 
-
   const [toastOpen, setToastOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
   const [toastSeverity, setToastSeverity] = useState<
@@ -60,7 +59,7 @@ const UserList: React.FC = () => {
 
   const router = useRouter();
 
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     try {
       const token = window.localStorage.getItem("token");
       const response = await axios.get(
@@ -86,11 +85,11 @@ const UserList: React.FC = () => {
         console.error("Error fetching users:", error);
       }
     }
-  };
+  }, [router, currentPage, rowsPerPage, search]);
 
   useEffect(() => {
     fetchUsers();
-  }, [currentPage, rowsPerPage, search]);
+  }, [fetchUsers]);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearch(e.target.value);
@@ -202,7 +201,7 @@ const UserList: React.FC = () => {
           className={styles.searchInput}
         />
       </div>
-      <TableContainer>
+      <TableContainer style={{ maxHeight: "400px", overflowY: "auto" }}>
         <Table>
           <TableHead>
             <TableRow>
@@ -224,14 +223,7 @@ const UserList: React.FC = () => {
                 <TableCell>{user.phoneNumber}</TableCell>
                 <TableCell>{user.gender}</TableCell>
                 <TableCell>
-                  {
-                    (
-                      user.roleId as {
-                        id: string;
-                        roleName: string;
-                      }
-                    ).roleName
-                  }
+                  {(user.roleId as { id: string; roleName: string }).roleName}
                 </TableCell>
                 <TableCell>
                   <IconButton

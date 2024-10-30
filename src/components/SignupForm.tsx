@@ -17,6 +17,7 @@ import ToastNotification from "@components/ToastNotification";
 import axios from "axios";
 import { genderOptions, religionOptions } from "@utils/constant";
 import { backendBaseUrl } from "@configs/config";
+import Link from "next/link";
 
 const SignupForm: React.FC = () => {
   const [form, setForm] = useState({
@@ -68,7 +69,7 @@ const SignupForm: React.FC = () => {
     }
   };
 
-  const handleError = (error: any) => {
+  const handleError = (error: unknown) => {
     if (axios.isAxiosError(error)) {
       if (error.response) {
         const { message, errors } = error.response.data;
@@ -254,7 +255,7 @@ const SignupForm: React.FC = () => {
         </Button>
         <Box mt={2} textAlign="center">
           <Typography variant="body2">
-            Already have an account? <a href="/">Login</a>
+            {"Already have an account?"} <Link href="/">{"Login"}</Link>
           </Typography>
         </Box>
       </form>

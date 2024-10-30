@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { AppBar, Toolbar, Typography, Button, IconButton } from "@mui/material";
+import { AppBar, Toolbar, Typography, Button, Box } from "@mui/material";
 import { useRouter } from "next/router";
-import MenuIcon from "@mui/icons-material/Menu";
 import bcrypt from "bcryptjs";
+import Link from "next/link";
 
 const Navbar: React.FC = () => {
   const router = useRouter();
@@ -14,14 +14,13 @@ const Navbar: React.FC = () => {
       if (storedUserType) {
         const isAdmin = await bcrypt.compare("admin", storedUserType);
         const isUser = await bcrypt.compare("user", storedUserType);
-        console.log({ isAdmin, isUser });
 
         if (isAdmin) {
           setUserType("Admin");
         } else if (isUser) {
           setUserType("User");
         } else {
-          setUserType("");
+          setUserType(null); // Set to null if no match
         }
       }
     }
@@ -42,27 +41,35 @@ const Navbar: React.FC = () => {
   };
 
   return (
-    <AppBar position="static" sx={{ backgroundColor: "#1976d2" }}>
+    <AppBar position="static" sx={{ backgroundColor: "#1976d2", boxShadow: 3 }}>
       <Toolbar>
-        <IconButton
-          edge="start"
-          color="inherit"
-          aria-label="menu"
-          sx={{ mr: 2 }}
+        <Link
+          href="/dashboard"
+          style={{ textDecoration: "none", color: "inherit" }}
         >
-          <MenuIcon />
-        </IconButton>
-        <Typography variant="h6" sx={{ flexGrow: 1 }}>
-          {`${userType ? userType : ""} Dashboard`}
-        </Typography>
-        <Button
-          color="inherit"
-          onClick={handleLogout}
-          variant="outlined"
-          sx={{ borderRadius: "20px" }}
-        >
-          Logout
-        </Button>
+          <Typography variant="h6" sx={{ flexGrow: 1 }}>
+            {`${userType ? userType : ""} Dashboard`}
+          </Typography>
+        </Link>
+
+        {/* Box for the Logout button to align it to the right */}
+        <Box sx={{ display: "flex", justifyContent: "flex-end", flexGrow: 1 }}>
+          <Button
+            color="inherit"
+            onClick={handleLogout}
+            variant="outlined"
+            sx={{
+              borderRadius: "20px",
+              "&:hover": {
+                backgroundColor: "#fff",
+                color: "#1976d2",
+              },
+              marginLeft: 2,
+            }}
+          >
+            Logout
+          </Button>
+        </Box>
       </Toolbar>
     </AppBar>
   );

@@ -4,6 +4,7 @@ import { useRouter } from "next/router";
 import axios from "axios";
 import { backendBaseUrl } from "@configs/config";
 import bcrypt from "bcryptjs";
+import Link from "next/link";
 
 const LoginForm: React.FC = () => {
   const [username, setUsername] = useState("");
@@ -88,7 +89,7 @@ const LoginForm: React.FC = () => {
         </Button>
         <Box mt={2} textAlign="center">
           <Typography variant="body2">
-            Don't have an account? <a href="/signup">Sign up</a>
+            {"Don't have an account?"} <Link href="/signup">{"Sign up"}</Link>
           </Typography>
         </Box>
       </form>

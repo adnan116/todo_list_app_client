@@ -18,7 +18,7 @@ const GetUserPage: React.FC = () => {
 
   return (
     <Layout>
-      <Container>
+      <Container style={{ padding: 0, overflow: "hidden", height: "100%" }}>
         <h1>User List</h1>
         <UserList />
       </Container>

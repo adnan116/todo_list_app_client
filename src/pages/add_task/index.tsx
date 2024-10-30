@@ -24,7 +24,9 @@ const AddTaskPage: React.FC = () => {
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
-          minHeight: "100vh",
+          minHeight: "85vh",
+          overflow: "hidden",
+          padding: 0,
         }}
       >
         <AddTask />

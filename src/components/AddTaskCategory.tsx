@@ -48,12 +48,12 @@ const AddTaskCategory: React.FC = () => {
           router.push("/get_category");
         }, 3000);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       handleError(error);
     }
   };
 
-  const handleError = (error: any) => {
+  const handleError = (error: unknown) => {
     if (axios.isAxiosError(error)) {
       if (error.response) {
         const { message, errors } = error.response.data;
@@ -88,14 +88,19 @@ const AddTaskCategory: React.FC = () => {
       display="flex"
       justifyContent="center"
       alignItems="center"
-      minHeight="100vh"
-      sx={{ overflow: "hidden", padding: 0, margin: 0 }}
+      sx={{ height: "85vh", overflow: "hidden", padding: 0, margin: 0 }}
     >
       <Paper
         elevation={6}
-        sx={{ padding: 4, borderRadius: 2, width: "100%", maxWidth: 500 }}
+        sx={{
+          padding: 4,
+          borderRadius: 2,
+          width: "100%",
+          maxWidth: 500,
+          overflow: "hidden",
+        }}
       >
-        <form onSubmit={handleAddTaskCategory} style={{ overflow: "hidden" }}>
+        <form onSubmit={handleAddTaskCategory}>
           <Typography variant="h5" component="h1" gutterBottom>
             Add New Task Category
           </Typography>

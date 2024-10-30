@@ -23,7 +23,7 @@ const AddUserPage: React.FC = () => {
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
-          minHeight: "100vh",
+          minHeight: "85vh",
         }}
       >
         <AddUser />

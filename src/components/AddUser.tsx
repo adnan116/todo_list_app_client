@@ -40,31 +40,31 @@ const AddUser: React.FC = () => {
   const [fieldErrors, setFieldErrors] = useState<{ [key: string]: string }>({});
   const router = useRouter();
 
-  const fetchRoles = async () => {
-    try {
-      const token = window.localStorage.getItem("token");
-      const response = await axios.get(`${backendBaseUrl}/user/all-roles`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (response.status === 200) {
-        setRoles(response.data.data);
-      }
-    } catch (error) {
-      if (axios.isAxiosError(error) && error.response?.status === 401) {
-        console.error("Unauthorized access - Redirecting to login.");
-        router.push("/");
-      } else {
-        console.error("Error fetching users:", error);
-      }
-    }
-  };
-
   useEffect(() => {
+    const fetchRoles = async () => {
+      try {
+        const token = window.localStorage.getItem("token");
+        const response = await axios.get(`${backendBaseUrl}/user/all-roles`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (response.status === 200) {
+          setRoles(response.data.data);
+        }
+      } catch (error) {
+        if (axios.isAxiosError(error) && error.response?.status === 401) {
+          console.error("Unauthorized access - Redirecting to login.");
+          router.push("/");
+        } else {
+          console.error("Error fetching users:", error);
+        }
+      }
+    };
+
     fetchRoles();
-  }, []);
+  }, [router]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -97,12 +97,12 @@ const AddUser: React.FC = () => {
           router.push("/get_user");
         }, 3000);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       handleError(error);
     }
   };
 
-  const handleError = (error: any) => {
+  const handleError = (error: unknown) => {
     if (axios.isAxiosError(error)) {
       if (error.response) {
         const { message, errors } = error.response.data;

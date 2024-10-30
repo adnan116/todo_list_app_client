@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Table,
   TableBody,
@@ -32,10 +32,8 @@ interface TaskCategory {
 const TaskCategoryList: React.FC = () => {
   const [categories, setCategories] = useState<TaskCategory[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [search, setSearch] = useState("");
-  const [searchQuery, setSearchQuery] = useState("");
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [categoryIdToDelete, setCategoryIdToDelete] = useState<string | null>(
     null
@@ -53,7 +51,7 @@ const TaskCategoryList: React.FC = () => {
   >("success");
 
   const router = useRouter();
-  const fetchCategories = async () => {
+  const fetchCategories = useCallback(async () => {
     try {
       const token = window.localStorage.getItem("token");
       const response = await axios.get(
@@ -69,7 +67,6 @@ const TaskCategoryList: React.FC = () => {
 
       if (response.status === 200) {
         setCategories(response.data.data.categories);
-        setTotalPages(response.data.data.totalPages);
         setTotalCategories(response.data.data.totalCategories);
       }
     } catch (error) {
@@ -80,11 +77,11 @@ const TaskCategoryList: React.FC = () => {
         console.error("Error fetching task categories:", error);
       }
     }
-  };
+  }, [currentPage, rowsPerPage, search, router]);
 
   useEffect(() => {
     fetchCategories();
-  }, [currentPage, rowsPerPage, search]);
+  }, [fetchCategories]);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearch(e.target.value);
@@ -193,7 +190,7 @@ const TaskCategoryList: React.FC = () => {
           className={styles.searchInput}
         />
       </div>
-      <TableContainer>
+      <TableContainer style={{ maxHeight: "400px", overflowY: "auto" }}>
         <Table>
           <TableHead>
             <TableRow>

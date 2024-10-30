@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   Modal,
   Box,
@@ -63,7 +63,7 @@ const UpdateUserModal: React.FC<UpdateUserModalProps> = ({
   const [roles, setRoles] = useState<Role[]>([]);
 
   const router = useRouter();
-  const fetchRoles = async () => {
+  const fetchRoles = useCallback(async () => {
     try {
       const token = window.localStorage.getItem("token");
       const response = await axios.get(`${backendBaseUrl}/user/all-roles`, {
@@ -87,11 +87,11 @@ const UpdateUserModal: React.FC<UpdateUserModalProps> = ({
         console.error("Failed to fetch roles:", error);
       }
     }
-  };
+  }, [router]);
 
   useEffect(() => {
     fetchRoles();
-  }, []);
+  }, [fetchRoles]);
 
   useEffect(() => {
     if (user) {
