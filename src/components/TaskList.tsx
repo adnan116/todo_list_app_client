@@ -48,6 +48,7 @@ const TaskList: React.FC = () => {
   const [users, setUsers] = useState<IUser[]>([]);
   const [isAdmin, setIsAdmin] = useState<boolean>(false);
   const [generalUserId, setGeneralUserId] = useState<string>("");
+  const [didMount, setDidMount] = useState(false);
 
   const router = useRouter();
 
@@ -153,11 +154,12 @@ const TaskList: React.FC = () => {
     fetchCategories();
     fetchUsers();
     setUserType();
+    setDidMount(true);
   }, [fetchCategories, fetchUsers, setUserType]);
 
   useEffect(() => {
-    fetchTasks();
-  }, [fetchTasks]);
+    if (didMount) fetchTasks();
+  }, [fetchTasks, didMount]);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearch(e.target.value);
